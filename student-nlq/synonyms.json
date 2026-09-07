@@ -1,0 +1,54 @@
+{
+  "departments": {
+    "bscs": "BSCS",
+    "cs": "BSCS",
+    "computer science": "BSCS",
+    "bsse": "BSSE",
+    "se": "BSSE",
+    "software engineering": "BSSE"
+  },
+  "intent_phrases": {
+    "student_profile": [
+      "show student", "student profile", "profile", "details of student",
+      "info of student", "student details", "show details", "student info"
+    ],
+    "students_in_dept": [
+      "students in", "students of", "list students in", "show students in",
+      "department", "dept", "batch in", "section in"
+    ],
+    "cgpa_filter": [
+      "cgpa", "gpa", "above", "below", "greater", "less", ">=", "<=", ">", "<"
+    ],
+    "top_students": [
+      "top", "toppers", "rankers", "highest cgpa", "best students", "merit list"
+    ],
+    "courses_of_student": [
+      "courses of", "subjects of", "enrolled courses", "registered courses",
+      "what courses", "what subjects"
+    ],
+    "attendance_record": [
+      "attendance of", "attendance in", "classes attended", "present", "absent"
+    ],
+    "attendance_percentage": [
+      "attendance percentage", "attendance percent", "attendance %", "percentage attendance"
+    ],
+    "fee_status": [
+      "fee status", "fees status", "fee of", "fees of", "dues", "outstanding", "paid", "unpaid"
+    ],
+    "unpaid_students": [
+      "unpaid students", "fee defaulters", "dues students", "students with dues"
+    ],
+    "mongo_notes": [
+      "notes for", "student notes", "remarks", "advisor note", "notes of", "comments", "feedback"
+    ],
+    "mongo_discipline": [
+      "discipline", "warning", "misconduct", "punishment", "fine", "disciplinary"
+    ],
+    "full_profile": [
+      "full profile", "complete profile", "all details", "everything about"
+    ],
+    "help": [
+      "help", "commands", "examples", "how to use"
+    ]
+  }
+}

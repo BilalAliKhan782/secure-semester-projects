@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="chat-shell">
+    <div id="chat" class="chat-stream">
+      <div class="msg msg-assistant">
+        <div class="bubble">
+          <div class="bubble-title">Hi 👋</div>
+          Ask me about your student database.
+          <div class="hint">
+            Try: <code>all students</code>,
+            <code>fee status of 1001</code>,
+            <code>show all students in semester 5</code>,
+            <code>show all bscs students sorted by cgpa</code>,
+            <code>page 2 students</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-inputbar">
+      <input id="msgInput" type="text" maxlength="500" placeholder="Type your question…" autocomplete="off" />
+      <button id="sendBtn" class="btn">Send</button>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='chat.js') }}"></script>
+{% endblock %}

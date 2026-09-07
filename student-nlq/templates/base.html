@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Student DB Assistant</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">🎓</div>
+      <div>
+        <div class="title">Student DB Assistant</div>
+        <div class="subtitle">Natural language → Oracle + MongoDB</div>
+      </div>
+    </div>
+
+    <div class="pill">Oracle + Mongo</div>
+  </header>
+
+  <main class="app-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
