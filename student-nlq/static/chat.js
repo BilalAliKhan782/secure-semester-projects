@@ -6,136 +6,153 @@ function scrollToBottom() {
   chat.scrollTop = chat.scrollHeight;
 }
 
-function escapeHtml(s) {
-  return String(s ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
+function createElement(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = String(text);
+  return node;
 }
 
 function renderTable(rows) {
-  if (!rows || rows.length === 0) return `<div class="hint"><em>No results.</em></div>`;
-  const cols = Object.keys(rows[0]);
-
-  let html = `<div class="table-wrap"><table><thead><tr>`;
-  for (const c of cols) html += `<th>${escapeHtml(c)}</th>`;
-  html += `</tr></thead><tbody>`;
-
-  for (const r of rows) {
-    html += `<tr>`;
-    for (const c of cols) html += `<td>${escapeHtml(r[c])}</td>`;
-    html += `</tr>`;
+  if (!rows || rows.length === 0) {
+    const hint = createElement("div", "hint");
+    hint.appendChild(createElement("em", "", "No results."));
+    return hint;
   }
 
-  html += `</tbody></table></div>`;
-  return html;
+  const wrapper = createElement("div", "table-wrap");
+  const table = document.createElement("table");
+  const header = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  const columns = Object.keys(rows[0]);
+
+  for (const column of columns) {
+    headerRow.appendChild(createElement("th", "", column));
+  }
+  header.appendChild(headerRow);
+  table.appendChild(header);
+
+  const body = document.createElement("tbody");
+  for (const row of rows) {
+    const tableRow = document.createElement("tr");
+    for (const column of columns) {
+      tableRow.appendChild(createElement("td", "", row[column] ?? ""));
+    }
+    body.appendChild(tableRow);
+  }
+  table.appendChild(body);
+  wrapper.appendChild(table);
+  return wrapper;
+}
+
+function appendSection(container, title, rows) {
+  const heading = createElement("div", "bubble-title", title);
+  heading.style.marginTop = "10px";
+  container.appendChild(heading);
+  container.appendChild(renderTable(rows));
 }
 
 function renderCombined(combined) {
-  let html = "";
+  const container = document.createElement("div");
+  let hasContent = false;
 
   if (combined.student) {
-    html += `<div class="bubble-title">Student</div>`;
-    html += renderTable([combined.student]);
+    appendSection(container, "Student", [combined.student]);
+    hasContent = true;
   }
   if (combined.fees) {
-    html += `<div class="bubble-title" style="margin-top:10px;">Fees</div>`;
-    html += renderTable([combined.fees]);
+    appendSection(container, "Fees", [combined.fees]);
+    hasContent = true;
   }
-  if (combined.courses && combined.courses.length) {
-    html += `<div class="bubble-title" style="margin-top:10px;">Courses</div>`;
-    html += renderTable(combined.courses);
+  if (combined.courses?.length) {
+    appendSection(container, "Courses", combined.courses);
+    hasContent = true;
   }
-  if (combined.notes && combined.notes.length) {
-    html += `<div class="bubble-title" style="margin-top:10px;">Notes</div>`;
-    html += renderTable(combined.notes);
+  if (combined.notes?.length) {
+    appendSection(container, "Notes", combined.notes);
+    hasContent = true;
   }
-  if (combined.discipline && combined.discipline.length) {
-    html += `<div class="bubble-title" style="margin-top:10px;">Discipline</div>`;
-    html += renderTable(combined.discipline);
+  if (combined.discipline?.length) {
+    appendSection(container, "Discipline", combined.discipline);
+    hasContent = true;
   }
 
-  if (!html) html = `<div class="hint"><em>No combined data.</em></div>`;
-  return html;
+  if (!hasContent) {
+    const hint = createElement("div", "hint");
+    hint.appendChild(createElement("em", "", "No combined data."));
+    container.appendChild(hint);
+  }
+  return container;
 }
 
 function appendUser(text) {
-  const div = document.createElement("div");
-  div.className = "msg msg-user";
-  div.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
-  chat.appendChild(div);
+  const message = createElement("div", "msg msg-user");
+  message.appendChild(createElement("div", "bubble", text));
+  chat.appendChild(message);
   scrollToBottom();
 }
 
 function appendAssistant(payload) {
-  const div = document.createElement("div");
-  div.className = "msg msg-assistant";
+  const message = createElement("div", "msg msg-assistant");
+  const bubble = createElement("div", "bubble");
+  bubble.appendChild(createElement("div", "bubble-title", payload?.title || "Result"));
 
-  const title = payload?.title || "Result";
-  const text = payload?.text || payload?.message || "";
-  const rows = payload?.rows || null;
-  const combined = payload?.combined || null;
-  const debug = payload?.debug || null;
-
-  let body = "";
-  if (combined) body += renderCombined(combined);
-  else if (rows) body += renderTable(rows);
-
-  if (text) body += `<div class="hint" style="margin-top:8px;">${escapeHtml(text)}</div>`;
-
-  let debugHtml = "";
-  if (debug) {
-    debugHtml = `
-      <details>
-        <summary>Debug</summary>
-        <pre>${escapeHtml(JSON.stringify(debug, null, 2))}</pre>
-      </details>
-    `;
+  if (payload?.combined) {
+    bubble.appendChild(renderCombined(payload.combined));
+  } else if (payload?.rows) {
+    bubble.appendChild(renderTable(payload.rows));
   }
 
-  div.innerHTML = `
-    <div class="bubble">
-      <div class="bubble-title">${escapeHtml(title)}</div>
-      ${body}
-      ${debugHtml}
-    </div>
-  `;
+  const text = payload?.text || payload?.message || "";
+  if (text) {
+    const hint = createElement("div", "hint", text);
+    hint.style.marginTop = "8px";
+    bubble.appendChild(hint);
+  }
 
-  chat.appendChild(div);
+  if (payload?.debug) {
+    const details = document.createElement("details");
+    details.appendChild(createElement("summary", "", "Debug"));
+    details.appendChild(createElement("pre", "", JSON.stringify(payload.debug, null, 2)));
+    bubble.appendChild(details);
+  }
+
+  message.appendChild(bubble);
+  chat.appendChild(message);
   scrollToBottom();
 }
 
 async function send() {
-  const q = input.value.trim();
-  if (!q) return;
+  const question = input.value.trim();
+  if (!question) return;
 
-  appendUser(q);
+  appendUser(question);
   input.value = "";
   input.focus();
 
-  const thinking = document.createElement("div");
-  thinking.className = "msg msg-assistant";
-  thinking.innerHTML = `<div class="bubble"><div class="hint">Thinking...</div></div>`;
+  const thinking = createElement("div", "msg msg-assistant");
+  const thinkingBubble = createElement("div", "bubble");
+  thinkingBubble.appendChild(createElement("div", "hint", "Thinking..."));
+  thinking.appendChild(thinkingBubble);
   chat.appendChild(thinking);
   scrollToBottom();
 
   try {
-    const res = await fetch("/api/chat", {
+    const response = await fetch("/api/chat", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ message: q })
+      body: JSON.stringify({message: question}),
     });
-
-    const data = await res.json();
+    const data = await response.json();
     thinking.remove();
     appendAssistant(data);
-  } catch (e) {
+  } catch (error) {
     thinking.remove();
-    appendAssistant({ title: "Error", text: "Server error. Check terminal logs.", debug: { error: String(e) } });
+    appendAssistant({title: "Error", text: "Server error. Check terminal logs."});
   }
 }
 
 btn.addEventListener("click", send);
-input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") send();
+input.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") send();
 });

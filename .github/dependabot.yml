@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /voice-v2
+    schedule:
+      interval: weekly
+  - package-ecosystem: pip
+    directory: /netshield-v2
+    schedule:
+      interval: weekly
+  - package-ecosystem: pip
+    directory: /student-nlq
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

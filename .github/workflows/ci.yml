@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            voice-v2/requirements.txt
+            netshield-v2/requirements.txt
+            student-nlq/requirements.txt
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r voice-v2/requirements.txt
+          python -m pip install -r netshield-v2/requirements.txt
+          python -m pip install -r student-nlq/requirements.txt
+      - name: Run Python tests
+        run: python -m unittest discover -s tests -v
+      - name: Check Python syntax
+        run: python -m compileall -q voice-v2 netshield-v2 student-nlq
+      - name: Compile restaurant project
+        run: g++ -std=c++17 -Wall -Wextra -pedantic -fsyntax-only restaurant/main.cpp
